@@ -1,12 +1,13 @@
 // lib/pdf-engine.ts
-import { PDFDocument, degrees } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 
-export const mergePDFs = async (files: File[]) => {
+export async function mergePDFs(files: File[]): Promise<Uint8Array> {
   const mergedPdf = await PDFDocument.create();
+  
   for (const file of files) {
-    const bytes = await file.arrayBuffer();
-    const doc = await PDFDocument.load(bytes);
-    const copiedPages = await mergedPdf.copyPages(doc, doc.getPageIndices());
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await PDFDocument.load(arrayBuffer);
+    const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
     copiedPages.forEach((page) => mergedPdf.addPage(page));
   }
   return await mergedPdf.save();
