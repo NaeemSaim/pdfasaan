@@ -21,6 +21,6 @@ export const rotatePDF = async (bytes: Uint8Array, angle: number) => {
   const pdfDoc = await PDFDocument.load(bytes);
   const pages = pdfDoc.getPages();
   // The 'degrees' function MUST be imported from 'pdf-lib' above
-  pages.forEach((page) => page.setRotation(degrees(angle)));
+  pages.forEach((page) => page.setRotation({ angle: angle, type: 'degrees' } as any));
   return await pdfDoc.save();
 };
