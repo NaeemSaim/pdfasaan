@@ -12,6 +12,7 @@ export default function Home() {
   const handleMerge = async () => {
     setIsProcessing(true);
     const bytes = await mergePDFs(selectedFiles);
+    // @ts-ignore - Ignore type mismatch for Blob generation
     const blob = new Blob([bytes], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
