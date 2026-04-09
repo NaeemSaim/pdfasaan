@@ -12,7 +12,7 @@ export default function Home() {
   const handleMerge = async () => {
     setIsProcessing(true);
     const bytes = await mergePDFs(selectedFiles);
-    const blob = new Blob([new Uint8Array(bytes)], { type: 'application/pdf' });
+    const blob = new Blob([bytes as any], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
