@@ -1,24 +1,26 @@
-// lib/pdf-engine.ts
-import { PDFDocument, degrees } from 'pdf-lib'; 
+import { PDFDocument, degrees } from 'pdf-lib';
 
-export async function rotatePDF(bytes: Uint8Array, angle: number) {
-  const pdfDoc = await PDFDocument.load(bytes);
-  const pages = pdfDoc.getPages();
-  
-  // 2. Use the 'degrees' helper correctly
-  pages.forEach((page) => {
-    page.setRotation(degrees(angle));
-  });
+/**
+ * Merges multiple PDFs into one
+ */
+export async function mergePDFs(files: File[]): Promise<Uint8Array> {
+  const mergedPdf = await PDFDocument.create();
+  for (const file of files) {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await PDFDocument.load(arrayBuffer);
+    const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+    copiedPages.forEach((page) => mergedPdf.addPage(page));
+  }
+  return await mergedPdf.save();
+}
 
-  return await pdfDoc.save();
-};
-
+/**
+ * Rotates a PDF
+ */
 export const rotatePDF = async (bytes: Uint8Array, angle: number) => {
   const pdfDoc = await PDFDocument.load(bytes);
   const pages = pdfDoc.getPages();
-  
-  // page.setRotation needs the 'degrees' helper to interpret the number
+  // The 'degrees' function MUST be imported from 'pdf-lib' above
   pages.forEach((page) => page.setRotation(degrees(angle)));
-  
   return await pdfDoc.save();
 };
