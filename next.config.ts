@@ -6,13 +6,9 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   typescript: {
-    // This will allow the build to complete even with those PDF.js type errors
     ignoreBuildErrors: true,
   },
-  eslint: {
-    // This prevents the build from failing due to linting warnings
-    ignoreDuringBuilds: true,
-  },
+  // Removed the eslint block because it's handled differently in Next 16
 };
 
 export default nextConfig;
