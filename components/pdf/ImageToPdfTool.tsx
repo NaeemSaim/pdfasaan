@@ -13,8 +13,8 @@ export default function ImageToPdfTool({ onBack }: { onBack: () => void }) {
     setIsProcessing(true);
     try {
       const pdfBytes = await imageToPDF(images);
-      // Change 'result' to 'pdfBytes' to match your variable on line 15
-      const blob = new Blob([pdfBytes.buffer], { type: 'application/pdf' });
+      // We pass the Uint8Array directly and tell TypeScript it's a valid BlobPart
+      const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
