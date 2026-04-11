@@ -13,7 +13,8 @@ export default function ImageToPdfTool({ onBack }: { onBack: () => void }) {
     setIsProcessing(true);
     try {
       const pdfBytes = await imageToPDF(images);
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      // Wrap 'result' in its buffer property to satisfy the TypeScript compiler
+      const blob = new Blob([result.buffer], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
