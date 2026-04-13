@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { 
   LayoutGrid, RotateCw, Zap, Scissors, Shield, Type, Trash2, 
   ImageIcon, FileImage, Hash, ShieldCheck, GripVertical, 
-  Coffee 
+  Coffee, ChevronRight
 } from 'lucide-react';
 
-// Tool Component Imports
+// Tool Component Imports (Keep these as they are in your project)
 import MergeTool from '@/components/pdf/MergeTool';
 import RotateTool from '@/components/pdf/RotateTool';
 import CompressTool from '@/components/pdf/CompressTool';
@@ -26,7 +26,7 @@ type Tool = 'home' | 'merge' | 'rotate' | 'compress' | 'split' | 'protect' | 'wa
 export default function Home() {
   const [activeTool, setActiveTool] = useState<Tool>('home');
 
-  // --- CONDITIONAL RENDERING ---
+  // Rendering Logic
   if (activeTool === 'merge') return <MergeTool onBack={() => setActiveTool('home')} />;
   if (activeTool === 'rotate') return <RotateTool onBack={() => setActiveTool('home')} />;
   if (activeTool === 'compress') return <CompressTool onBack={() => setActiveTool('home')} />;
@@ -41,105 +41,76 @@ export default function Home() {
   if (activeTool === 'organize') return <OrganizerTool onBack={() => setActiveTool('home')} />;
 
   const tools = [
-    { id: 'merge', name: 'Merge PDF', desc: 'Combine multiple files into one.', icon: <LayoutGrid size={28} />, category: 'primary' },
-    { id: 'split', name: 'Split PDF', desc: 'Extract specific pages.', icon: <Scissors size={28} />, category: 'primary' },
-    { id: 'compress', name: 'Compress', desc: 'Reduce file size efficiently.', icon: <Zap size={28} />, category: 'primary' },
-    { id: 'img2pdf', name: 'Image to PDF', desc: 'Turn photos into a PDF.', icon: <FileImage size={28} />, category: 'secondary' },
-    { id: 'pdf2img', name: 'PDF to Image', desc: 'Convert pages into JPGs.', icon: <ImageIcon size={28} />, category: 'secondary' },
-    { id: 'organize', name: 'Organize', desc: 'Reorder or delete pages.', icon: <GripVertical size={28} />, category: 'secondary' },
-    { id: 'rotate', name: 'Rotate PDF', desc: 'Fix page orientation.', icon: <RotateCw size={28} />, category: 'utility' },
-    { id: 'protect', name: 'Protect', desc: 'Add password encryption.', icon: <Shield size={28} />, category: 'utility' },
-    { id: 'watermark', name: 'Watermark', desc: 'Add text overlay.', icon: <Type size={28} />, category: 'utility' },
-    { id: 'delete', name: 'Delete Pages', desc: 'Remove unwanted pages.', icon: <Trash2 size={28} />, category: 'utility' },
-    { id: 'numbers', name: 'Page Numbers', desc: 'Add footer numbering.', icon: <Hash size={28} />, category: 'utility' },
-    { id: 'redact', name: 'Redact PDF', desc: 'Blackout sensitive info.', icon: <ShieldCheck size={28} />, category: 'utility' },
+    { id: 'merge', name: 'Merge', desc: 'Join multiple PDFs', icon: <LayoutGrid size={22} />, color: 'bg-cyan-500/10 text-cyan-400' },
+    { id: 'compress', name: 'Compress', desc: 'Reduce file size', icon: <Zap size={22} />, color: 'bg-emerald-500/10 text-emerald-400' },
+    { id: 'img2pdf', name: 'Images', desc: 'Photos to PDF', icon: <FileImage size={22} />, color: 'bg-blue-500/10 text-blue-400' },
+    { id: 'organize', name: 'Organize', desc: 'Reorder pages', icon: <GripVertical size={22} />, color: 'bg-purple-500/10 text-purple-400' },
+    { id: 'split', name: 'Split', desc: 'Extract pages', icon: <Scissors size={22} />, color: 'bg-orange-500/10 text-orange-400' },
+    { id: 'protect', name: 'Security', desc: 'Add passwords', icon: <Shield size={22} />, color: 'bg-slate-500/10 text-slate-400' },
   ];
 
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-100 font-sans selection:bg-orange-500/30">
-      {/* 2026 Style Floating Header */}
-      <header className="fixed top-0 w-full z-50 bg-[#050505]/80 backdrop-blur-md border-b border-zinc-900">
-        <div className="max-w-6xl mx-auto px-6 h-20 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-900/20">
-              <span className="font-black text-black text-xl italic">A</span>
-            </div>
-            <span className="text-xl font-black tracking-tighter uppercase italic">PDF Asaan</span>
+    <div className="min-h-screen bg-slate-950 text-slate-200">
+      {/* Dynamic Nav - Uses standard Tailwind blur */}
+      <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4">
+        <div className="w-full max-w-2xl bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-2xl px-6 py-3 flex justify-between items-center shadow-xl">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-cyan-400" />
+            <span className="font-bold tracking-tight text-white">PdfAsaan</span>
           </div>
-          
-          <a 
-            href="https://www.buymeacoffee.com/yourusername"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 bg-zinc-900 rounded-full hover:bg-orange-600 transition-all duration-300 group"
-          >
-            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 group-hover:text-black">Support</span>
-            <Coffee size={14} className="text-orange-500 group-hover:text-black" />
-          </a>
+          <div className="flex items-center gap-4">
+            <a href="https://buymeacoffee.com/yourusername" target="_blank" className="text-xs font-medium text-slate-400 hover:text-cyan-400">Support</a>
+            <div className="h-4 w-px bg-slate-800" />
+            <span className="text-[10px] font-mono text-slate-500 tracking-tighter">V2.0</span>
+          </div>
         </div>
-      </header>
+      </nav>
 
-      <main className="max-w-6xl mx-auto pt-32 pb-20 px-6">
-        {/* Hero Section */}
-        <div className="mb-20">
-          <h1 className="text-7xl font-black mb-6 tracking-tighter italic leading-none">
-            EVERYTHING <br /> <span className="text-orange-600">ASAAN.</span>
+      <main className="max-w-5xl mx-auto pt-40 pb-20 px-6">
+        {/* Clean Hero */}
+        <div className="mb-16">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white mb-4">
+            PDF tools, <span className="text-slate-500">simplified.</span>
           </h1>
-          <p className="text-zinc-500 text-xl max-w-2xl font-medium">
-            Professional PDF tools without the clutter. No uploads. 
-            <span className="text-zinc-300 ml-2">Secure browser-side processing.</span>
+          <p className="text-slate-400 text-lg max-w-lg leading-relaxed">
+            Professional document handling directly in your browser. 
+            No uploads, no servers, total privacy.
           </p>
         </div>
 
-        {/* Tools Section Grouped by Importance */}
-        <section>
-          <div className="flex items-center gap-4 mb-8">
-            <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-700">Primary Actions</h2>
-            <div className="h-[1px] flex-grow bg-zinc-900"></div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {tools.map((tool) => (
-              <button
-                key={tool.id}
-                onClick={() => setActiveTool(tool.id as Tool)}
-                className="group relative p-8 bg-zinc-900/30 border border-zinc-800/50 rounded-[2rem] text-left hover:bg-orange-600 transition-all duration-500 overflow-hidden"
-              >
-                {/* Decorative background number or icon */}
-                <div className="absolute -right-4 -bottom-4 text-zinc-800/20 group-hover:text-black/10 transition-colors">
-                   {tool.icon}
-                </div>
+        {/* Tools Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {tools.map((tool) => (
+            <button
+              key={tool.id}
+              onClick={() => setActiveTool(tool.id as Tool)}
+              className="group p-6 bg-slate-900/50 border border-slate-800 rounded-3xl text-left hover:bg-slate-800/80 hover:border-slate-700 transition-all duration-200"
+            >
+              <div className={`w-12 h-12 rounded-2xl ${tool.color} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
+                {tool.icon}
+              </div>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-white">{tool.name}</h3>
+                <ChevronRight size={16} className="text-slate-600 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" />
+              </div>
+              <p className="text-sm text-slate-500 mt-1">{tool.desc}</p>
+            </button>
+          ))}
+        </div>
 
-                <div className="text-orange-600 mb-6 group-hover:text-black transition-colors duration-300">
-                  {tool.icon}
-                </div>
-                <h3 className="text-2xl font-bold mb-2 group-hover:text-black transition-colors duration-300 tracking-tight">{tool.name}</h3>
-                <p className="text-zinc-500 group-hover:text-black/70 transition-colors duration-300 text-sm font-medium">{tool.desc}</p>
-              </button>
-            ))}
-          </div>
-        </section>
+        {/* Security Badge */}
+        <div className="mt-12 p-4 bg-slate-900/30 border border-slate-800 rounded-2xl flex items-center justify-center gap-3">
+            <ShieldCheck size={16} className="text-cyan-500" />
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">100% Private Client-Side Processing</span>
+        </div>
       </main>
 
-      {/* Modern Minimal Footer */}
-      <footer className="py-20 border-t border-zinc-900">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-              <p className="text-xs font-black text-zinc-800 uppercase tracking-[0.5em] mb-4">
-                © 2026 PDF ASAAN
-              </p>
-              <p className="text-zinc-600 text-sm max-w-xs">
-                Your files never touch our servers. Security by design.
-              </p>
-            </div>
-            <div className="flex flex-wrap md:justify-end gap-x-8 gap-y-4">
-              <Link href="/privacy" className="text-xs font-bold text-zinc-500 hover:text-orange-500 uppercase tracking-widest">Privacy</Link>
-              <Link href="/terms" className="text-xs font-bold text-zinc-500 hover:text-orange-500 uppercase tracking-widest">Terms</Link>
-              <Link href="/about" className="text-xs font-bold text-zinc-500 hover:text-orange-500 uppercase tracking-widest">About</Link>
-            </div>
-          </div>
+      <footer className="py-12 border-t border-slate-900 text-center">
+        <div className="flex justify-center gap-6 mb-4">
+          <Link href="/privacy" className="text-[10px] font-bold text-slate-600 hover:text-white uppercase tracking-widest">Privacy</Link>
+          <Link href="/terms" className="text-[10px] font-bold text-slate-600 hover:text-white uppercase tracking-widest">Terms</Link>
         </div>
+        <p className="text-[10px] font-mono text-slate-800 uppercase tracking-[0.4em]">© 2026 PDF ASAAN</p>
       </footer>
     </div>
   );
