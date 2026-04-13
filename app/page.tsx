@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { 
   LayoutGrid, RotateCw, Zap, Scissors, Shield, Type, Trash2, 
   ImageIcon, FileImage, Hash, ShieldCheck, GripVertical, 
-  Coffee, ChevronRight
+  Coffee, ChevronRight 
 } from 'lucide-react';
 
-// Tool Component Imports (Keep these as they are in your project)
+// Tool Component Imports
 import MergeTool from '@/components/pdf/MergeTool';
 import RotateTool from '@/components/pdf/RotateTool';
 import CompressTool from '@/components/pdf/CompressTool';
@@ -26,7 +26,83 @@ type Tool = 'home' | 'merge' | 'rotate' | 'compress' | 'split' | 'protect' | 'wa
 export default function Home() {
   const [activeTool, setActiveTool] = useState<Tool>('home');
 
-  // Rendering Logic
+  // Hardcoded Style Tokens (Ensures 2026 look regardless of Tailwind config)
+  const theme = {
+    bg: '#020617',
+    card: 'rgba(30, 41, 59, 0.4)',
+    border: 'rgba(255, 255, 255, 0.08)',
+    accent: '#22d3ee',
+    textMain: '#f8fafc',
+    textDim: '#94a3b8'
+  };
+
+  const containerStyle: React.CSSProperties = {
+    backgroundColor: theme.bg,
+    minHeight: '100vh',
+    color: theme.textMain,
+    fontFamily: 'system-ui, -apple-system, sans-serif',
+    padding: '140px 24px 60px 24px',
+    transition: 'all 0.3s ease'
+  };
+
+  const navStyle: React.CSSProperties = {
+    position: 'fixed',
+    top: '24px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '90%',
+    maxWidth: '800px',
+    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+    backdropFilter: 'blur(16px)',
+    WebkitBackdropFilter: 'blur(16px)',
+    border: `1px solid ${theme.border}`,
+    borderRadius: '20px',
+    padding: '14px 28px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    zIndex: 1000,
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+  };
+
+  const gridStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+    gap: '20px',
+    maxWidth: '1100px',
+    margin: '48px auto 0 auto'
+  };
+
+  const cardStyle: React.CSSProperties = {
+    backgroundColor: theme.card,
+    border: `1px solid ${theme.border}`,
+    borderRadius: '24px',
+    padding: '32px',
+    textAlign: 'left',
+    cursor: 'pointer',
+    position: 'relative',
+    overflow: 'hidden',
+    transition: 'transform 0.2s ease, background-color 0.2s ease',
+    display: 'flex',
+    flexDirection: 'column'
+  };
+
+  const tools = [
+    { id: 'merge', name: 'Merge PDF', desc: 'Combine multiple files into one.', icon: <LayoutGrid size={24} />, color: '#06b6d4' },
+    { id: 'split', name: 'Split PDF', desc: 'Extract specific pages or ranges.', icon: <Scissors size={24} />, color: '#f97316' },
+    { id: 'compress', name: 'Compress', desc: 'Reduce file size without quality loss.', icon: <Zap size={24} />, color: '#10b981' },
+    { id: 'img2pdf', name: 'Image to PDF', desc: 'Convert JPG/PNG to document.', icon: <FileImage size={24} />, color: '#3b82f6' },
+    { id: 'pdf2img', name: 'PDF to Image', desc: 'Turn PDF pages into JPG images.', icon: <ImageIcon size={24} />, color: '#ec4899' },
+    { id: 'organize', name: 'Organize', desc: 'Reorder or delete pages visually.', icon: <GripVertical size={24} />, color: '#a855f7' },
+    { id: 'rotate', name: 'Rotate', desc: 'Fix orientation of your pages.', icon: <RotateCw size={24} />, color: '#6366f1' },
+    { id: 'protect', name: 'Security', desc: 'Add password encryption.', icon: <Shield size={24} />, color: '#94a3b8' },
+    { id: 'watermark', name: 'Watermark', desc: 'Add text or image overlay.', icon: <Type size={24} />, color: '#0ea5e9' },
+    { id: 'delete', name: 'Delete Pages', desc: 'Easily remove specific pages.', icon: <Trash2 size={24} />, color: '#ef4444' },
+    { id: 'numbers', name: 'Page Numbers', desc: 'Add numbering to footer.', icon: <Hash size={24} />, color: '#f59e0b' },
+    { id: 'redact', name: 'Redact', desc: 'Blackout sensitive information.', icon: <ShieldCheck size={24} />, color: '#ffffff' },
+  ];
+
+  // --- RENDERING LOGIC ---
   if (activeTool === 'merge') return <MergeTool onBack={() => setActiveTool('home')} />;
   if (activeTool === 'rotate') return <RotateTool onBack={() => setActiveTool('home')} />;
   if (activeTool === 'compress') return <CompressTool onBack={() => setActiveTool('home')} />;
@@ -40,77 +116,73 @@ export default function Home() {
   if (activeTool === 'redact') return <RedactTool onBack={() => setActiveTool('home')} />;
   if (activeTool === 'organize') return <OrganizerTool onBack={() => setActiveTool('home')} />;
 
-  const tools = [
-    { id: 'merge', name: 'Merge', desc: 'Join multiple PDFs', icon: <LayoutGrid size={22} />, color: 'bg-cyan-500/10 text-cyan-400' },
-    { id: 'compress', name: 'Compress', desc: 'Reduce file size', icon: <Zap size={22} />, color: 'bg-emerald-500/10 text-emerald-400' },
-    { id: 'img2pdf', name: 'Images', desc: 'Photos to PDF', icon: <FileImage size={22} />, color: 'bg-blue-500/10 text-blue-400' },
-    { id: 'organize', name: 'Organize', desc: 'Reorder pages', icon: <GripVertical size={22} />, color: 'bg-purple-500/10 text-purple-400' },
-    { id: 'split', name: 'Split', desc: 'Extract pages', icon: <Scissors size={22} />, color: 'bg-orange-500/10 text-orange-400' },
-    { id: 'protect', name: 'Security', desc: 'Add passwords', icon: <Shield size={22} />, color: 'bg-slate-500/10 text-slate-400' },
-  ];
-
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200">
-      {/* Dynamic Nav - Uses standard Tailwind blur */}
-      <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4">
-        <div className="w-full max-w-2xl bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-2xl px-6 py-3 flex justify-between items-center shadow-xl">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-cyan-400" />
-            <span className="font-bold tracking-tight text-white">PdfAsaan</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <a href="https://buymeacoffee.com/yourusername" target="_blank" className="text-xs font-medium text-slate-400 hover:text-cyan-400">Support</a>
-            <div className="h-4 w-px bg-slate-800" />
-            <span className="text-[10px] font-mono text-slate-500 tracking-tighter">V2.0</span>
-          </div>
+    <div style={containerStyle}>
+      <nav style={navStyle}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ width: '32px', height: '32px', backgroundColor: '#0891b2', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', color: '#000', fontStyle: 'italic' }}>A</div>
+          <span style={{ fontWeight: '800', fontSize: '18px', letterSpacing: '-0.5px' }}>PdfAsaan</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <a href="https://buymeacoffee.com/yourusername" target="_blank" style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', color: theme.textDim, textDecoration: 'none' }}>Support</a>
+          <div style={{ width: '1px', height: '16px', backgroundColor: theme.border }}></div>
+          <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#0891b2' }}>STABLE V2.0</span>
         </div>
       </nav>
 
-      <main className="max-w-5xl mx-auto pt-40 pb-20 px-6">
-        {/* Clean Hero */}
-        <div className="mb-16">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white mb-4">
-            PDF tools, <span className="text-slate-500">simplified.</span>
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        <header style={{ marginBottom: '60px' }}>
+          <h1 style={{ fontSize: 'clamp(40px, 8vw, 72px)', fontWeight: '900', letterSpacing: '-0.04em', lineHeight: '1', marginBottom: '20px' }}>
+            Document handling, <br/>
+            <span style={{ color: theme.textDim }}>made truly effortless.</span>
           </h1>
-          <p className="text-slate-400 text-lg max-w-lg leading-relaxed">
-            Professional document handling directly in your browser. 
-            No uploads, no servers, total privacy.
+          <p style={{ fontSize: '19px', color: theme.textDim, maxWidth: '600px', lineHeight: '1.6' }}>
+            Professional-grade PDF tools running entirely in your browser. No uploads, no servers, 100% private.
           </p>
-        </div>
+        </header>
 
-        {/* Tools Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div style={gridStyle}>
           {tools.map((tool) => (
-            <button
-              key={tool.id}
+            <button 
+              key={tool.id} 
               onClick={() => setActiveTool(tool.id as Tool)}
-              className="group p-6 bg-slate-900/50 border border-slate-800 rounded-3xl text-left hover:bg-slate-800/80 hover:border-slate-700 transition-all duration-200"
+              style={cardStyle}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(51, 65, 85, 0.6)';
+                e.currentTarget.style.transform = 'translateY(-4px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = theme.card;
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
             >
-              <div className={`w-12 h-12 rounded-2xl ${tool.color} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
+              <div style={{ width: '50px', height: '50px', borderRadius: '14px', backgroundColor: `${tool.color}15`, color: tool.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
                 {tool.icon}
               </div>
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white">{tool.name}</h3>
-                <ChevronRight size={16} className="text-slate-600 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <h3 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>{tool.name}</h3>
+                <ChevronRight size={18} color={theme.textDim} />
               </div>
-              <p className="text-sm text-slate-500 mt-1">{tool.desc}</p>
+              <p style={{ fontSize: '14px', color: theme.textDim, margin: 0, lineHeight: '1.5' }}>{tool.desc}</p>
             </button>
           ))}
         </div>
 
-        {/* Security Badge */}
-        <div className="mt-12 p-4 bg-slate-900/30 border border-slate-800 rounded-2xl flex items-center justify-center gap-3">
-            <ShieldCheck size={16} className="text-cyan-500" />
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">100% Private Client-Side Processing</span>
+        <div style={{ marginTop: '80px', padding: '30px', border: `1px solid ${theme.border}`, borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+          <ShieldCheck size={20} color="#22d3ee" />
+          <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px', color: '#64748b' }}>
+            End-to-End Privacy: Files never leave your device
+          </span>
         </div>
-      </main>
+      </div>
 
-      <footer className="py-12 border-t border-slate-900 text-center">
-        <div className="flex justify-center gap-6 mb-4">
-          <Link href="/privacy" className="text-[10px] font-bold text-slate-600 hover:text-white uppercase tracking-widest">Privacy</Link>
-          <Link href="/terms" className="text-[10px] font-bold text-slate-600 hover:text-white uppercase tracking-widest">Terms</Link>
+      <footer style={{ marginTop: '100px', paddingBottom: '40px', textAlign: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', marginBottom: '20px' }}>
+          <Link href="/privacy" style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', color: theme.textDim, textDecoration: 'none' }}>Privacy</Link>
+          <Link href="/terms" style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', color: theme.textDim, textDecoration: 'none' }}>Terms</Link>
+          <Link href="/about" style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', color: theme.textDim, textDecoration: 'none' }}>About</Link>
         </div>
-        <p className="text-[10px] font-mono text-slate-800 uppercase tracking-[0.4em]">© 2026 PDF ASAAN</p>
+        <p style={{ fontSize: '10px', fontFamily: 'monospace', color: '#334155', letterSpacing: '4px' }}>© 2026 PDF ASAAN • OPEN SOURCE UTILITY</p>
       </footer>
     </div>
   );
