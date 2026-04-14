@@ -1,13 +1,14 @@
 'use client';
-import { useState } from 'react';
+
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { 
-  LayoutGrid, RotateCw, Zap, Scissors, Shield, Type, Trash2, 
-  ImageIcon, FileImage, Hash, ShieldCheck, GripVertical, 
-  Coffee, ChevronRight 
+import {
+  LayoutGrid, RotateCw, Zap, Scissors, Shield, Type, Trash2,
+  ImageIcon, FileImage, Hash, ShieldCheck, GripVertical,
+  Coffee, ChevronRight, Sparkles
 } from 'lucide-react';
 
-// Tool Component Imports
+// Tool Imports
 import MergeTool from '@/components/pdf/MergeTool';
 import RotateTool from '@/components/pdf/RotateTool';
 import CompressTool from '@/components/pdf/CompressTool';
@@ -21,28 +22,81 @@ import PageNumberTool from '@/components/pdf/PageNumberTool';
 import RedactTool from '@/components/pdf/RedactTool';
 import OrganizerTool from '@/components/pdf/OrganizerTool';
 
-type Tool = 'home' | 'merge' | 'rotate' | 'compress' | 'split' | 'protect' | 'watermark' | 'delete' | 'pdf2img' | 'img2pdf' | 'numbers' | 'redact' | 'organize';
+type Tool = 'home' | 'merge' | 'rotate' | 'compress' | 'split' | 'protect' | 
+           'watermark' | 'delete' | 'pdf2img' | 'img2pdf' | 'numbers' | 
+           'redact' | 'organize';
+
+const toolComponents: Record<Exclude<Tool, 'home'>, React.ComponentType<{ onBack: () => void }>> = {
+  merge: MergeTool,
+  rotate: RotateTool,
+  compress: CompressTool,
+  split: SplitTool,
+  protect: ProtectTool,
+  watermark: WatermarkTool,
+  delete: DeleteTool,
+  pdf2img: PdfToImageTool,
+  img2pdf: ImageToPdfTool,
+  numbers: PageNumberTool,
+  redact: RedactTool,
+  organize: OrganizerTool,
+};
 
 export default function Home() {
   const [activeTool, setActiveTool] = useState<Tool>('home');
+  const [devMode, setDevMode] = useState(false);
+  const [recentTools, setRecentTools] = useState<string[]>([]);
 
-  // Hardcoded Style Tokens (Ensures 2026 look regardless of Tailwind config)
+  // 2026 Cyberpunk Theme
   const theme = {
     bg: '#020617',
-    card: 'rgba(30, 41, 59, 0.4)',
-    border: 'rgba(255, 255, 255, 0.08)',
+    card: 'rgba(30, 41, 59, 0.45)',
+    border: 'rgba(255, 255, 255, 0.06)',
     accent: '#22d3ee',
+    accentGlow: '#67e8f9',
     textMain: '#f8fafc',
-    textDim: '#94a3b8'
+    textDim: '#94a3b8',
+    success: '#22c55e'
   };
 
+  // Keyboard shortcut for Devil Mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'd') {
+        e.preventDefault();
+        setDevMode(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Save recent tools
+  const handleToolSelect = useCallback((toolId: Tool) => {
+    if (toolId === 'home') return;
+    
+    setActiveTool(toolId);
+    
+    setRecentTools(prev => {
+      const filtered = prev.filter(id => id !== toolId);
+      return [toolId, ...filtered].slice(0, 4);
+    });
+  }, []);
+
+  const handleBack = () => {
+    setActiveTool('home');
+  };
+
+  // Dynamic styles based on devMode
   const containerStyle: React.CSSProperties = {
-    backgroundColor: theme.bg,
+    backgroundColor: devMode ? '#0a0a0a' : theme.bg,
     minHeight: '100vh',
     color: theme.textMain,
     fontFamily: 'system-ui, -apple-system, sans-serif',
-    padding: '140px 24px 60px 24px',
-    transition: 'all 0.3s ease'
+    padding: '140px 24px 80px 24px',
+    transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+    position: 'relative',
+    overflow: 'hidden'
   };
 
   const navStyle: React.CSSProperties = {
@@ -51,138 +105,344 @@ export default function Home() {
     left: '50%',
     transform: 'translateX(-50%)',
     width: '90%',
-    maxWidth: '800px',
-    backgroundColor: 'rgba(15, 23, 42, 0.8)',
-    backdropFilter: 'blur(16px)',
-    WebkitBackdropFilter: 'blur(16px)',
-    border: `1px solid ${theme.border}`,
-    borderRadius: '20px',
-    padding: '14px 28px',
+    maxWidth: '820px',
+    backgroundColor: devMode ? 'rgba(20, 20, 20, 0.95)' : 'rgba(15, 23, 42, 0.85)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    border: `1px solid ${devMode ? '#450a0a' : theme.border}`,
+    borderRadius: '9999px',
+    padding: '14px 32px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     zIndex: 1000,
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+    boxShadow: devMode 
+      ? '0 0 40px -10px #ef4444' 
+      : '0 25px 50px -12px rgba(0, 0, 0, 0.6)'
   };
 
   const gridStyle: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-    gap: '20px',
-    maxWidth: '1100px',
-    margin: '48px auto 0 auto'
+    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+    gap: '24px',
+    maxWidth: '1180px',
+    margin: '60px auto 0 auto'
   };
 
   const cardStyle: React.CSSProperties = {
-    backgroundColor: theme.card,
-    border: `1px solid ${theme.border}`,
-    borderRadius: '24px',
-    padding: '32px',
+    backgroundColor: devMode ? 'rgba(30, 10, 10, 0.6)' : theme.card,
+    border: `1px solid ${devMode ? '#7f1d1d' : theme.border}`,
+    borderRadius: '28px',
+    padding: '36px 32px',
     textAlign: 'left',
     cursor: 'pointer',
     position: 'relative',
     overflow: 'hidden',
-    transition: 'transform 0.2s ease, background-color 0.2s ease',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    boxShadow: '0 10px 30px -15px rgba(0,0,0,0.5)'
   };
 
   const tools = [
-    { id: 'merge', name: 'Merge PDF', desc: 'Combine multiple files into one.', icon: <LayoutGrid size={24} />, color: '#06b6d4' },
-    { id: 'split', name: 'Split PDF', desc: 'Extract specific pages or ranges.', icon: <Scissors size={24} />, color: '#f97316' },
-    { id: 'compress', name: 'Compress', desc: 'Reduce file size without quality loss.', icon: <Zap size={24} />, color: '#10b981' },
-    { id: 'img2pdf', name: 'Image to PDF', desc: 'Convert JPG/PNG to document.', icon: <FileImage size={24} />, color: '#3b82f6' },
-    { id: 'pdf2img', name: 'PDF to Image', desc: 'Turn PDF pages into JPG images.', icon: <ImageIcon size={24} />, color: '#ec4899' },
-    { id: 'organize', name: 'Organize', desc: 'Reorder or delete pages visually.', icon: <GripVertical size={24} />, color: '#a855f7' },
-    { id: 'rotate', name: 'Rotate', desc: 'Fix orientation of your pages.', icon: <RotateCw size={24} />, color: '#6366f1' },
-    { id: 'protect', name: 'Security', desc: 'Add password encryption.', icon: <Shield size={24} />, color: '#94a3b8' },
-    { id: 'watermark', name: 'Watermark', desc: 'Add text or image overlay.', icon: <Type size={24} />, color: '#0ea5e9' },
-    { id: 'delete', name: 'Delete Pages', desc: 'Easily remove specific pages.', icon: <Trash2 size={24} />, color: '#ef4444' },
-    { id: 'numbers', name: 'Page Numbers', desc: 'Add numbering to footer.', icon: <Hash size={24} />, color: '#f59e0b' },
-    { id: 'redact', name: 'Redact', desc: 'Blackout sensitive information.', icon: <ShieldCheck size={24} />, color: '#ffffff' },
+    { id: 'merge', name: 'Merge PDF', desc: 'Combine multiple PDFs into one powerful document.', icon: <LayoutGrid size={26} />, color: '#06b6d4' },
+    { id: 'split', name: 'Split PDF', desc: 'Extract pages or ranges with surgical precision.', icon: <Scissors size={26} />, color: '#f97316' },
+    { id: 'compress', name: 'Compress PDF', desc: 'Shrink file size without losing a single pixel.', icon: <Zap size={26} />, color: '#10b981' },
+    { id: 'img2pdf', name: 'Image to PDF', desc: 'Turn images into clean, professional PDFs.', icon: <FileImage size={26} />, color: '#3b82f6' },
+    { id: 'pdf2img', name: 'PDF to Images', desc: 'Extract every page as high-quality JPG/PNG.', icon: <ImageIcon size={26} />, color: '#ec4899' },
+    { id: 'organize', name: 'Organize Pages', desc: 'Drag, drop, reorder like a god.', icon: <GripVertical size={26} />, color: '#a855f7' },
+    { id: 'rotate', name: 'Rotate Pages', desc: 'Fix upside-down chaos in seconds.', icon: <RotateCw size={26} />, color: '#6366f1' },
+    { id: 'protect', name: 'Password Protect', desc: 'Military-grade encryption.', icon: <Shield size={26} />, color: '#64748b' },
+    { id: 'watermark', name: 'Watermark', desc: 'Stamp your authority on every page.', icon: <Type size={26} />, color: '#0ea5e9' },
+    { id: 'delete', name: 'Delete Pages', desc: 'Remove the weak pages mercilessly.', icon: <Trash2 size={26} />, color: '#ef4444' },
+    { id: 'numbers', name: 'Page Numbers', desc: 'Add elegant numbering automatically.', icon: <Hash size={26} />, color: '#f59e0b' },
+    { id: 'redact', name: 'Redact', desc: 'Blackout sensitive data like a pro.', icon: <ShieldCheck size={26} />, color: '#ffffff' },
   ];
 
-  // --- RENDERING LOGIC ---
-  if (activeTool === 'merge') return <MergeTool onBack={() => setActiveTool('home')} />;
-  if (activeTool === 'rotate') return <RotateTool onBack={() => setActiveTool('home')} />;
-  if (activeTool === 'compress') return <CompressTool onBack={() => setActiveTool('home')} />;
-  if (activeTool === 'split') return <SplitTool onBack={() => setActiveTool('home')} />;
-  if (activeTool === 'protect') return <ProtectTool onBack={() => setActiveTool('home')} />;
-  if (activeTool === 'watermark') return <WatermarkTool onBack={() => setActiveTool('home')} />;
-  if (activeTool === 'delete') return <DeleteTool onBack={() => setActiveTool('home')} />;
-  if (activeTool === 'pdf2img') return <PdfToImageTool onBack={() => setActiveTool('home')} />;
-  if (activeTool === 'img2pdf') return <ImageToPdfTool onBack={() => setActiveTool('home')} />;
-  if (activeTool === 'numbers') return <PageNumberTool onBack={() => setActiveTool('home')} />;
-  if (activeTool === 'redact') return <RedactTool onBack={() => setActiveTool('home')} />;
-  if (activeTool === 'organize') return <OrganizerTool onBack={() => setActiveTool('home')} />;
+  const ActiveToolComponent = activeTool !== 'home' 
+    ? toolComponents[activeTool as Exclude<Tool, 'home'>] 
+    : null;
+
+  if (ActiveToolComponent) {
+    return <ActiveToolComponent onBack={handleBack} />;
+  }
 
   return (
     <div style={containerStyle}>
+      {/* Subtle background grid */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        backgroundImage: `radial-gradient(circle at 1px 1px, rgba(148, 163, 184, 0.08) 1px, transparent 0)`,
+        backgroundSize: '40px 40px',
+        pointerEvents: 'none',
+        zIndex: 0
+      }} />
+
+      {/* Navigation */}
       <nav style={navStyle}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '32px', height: '32px', backgroundColor: '#0891b2', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', color: '#000', fontStyle: 'italic' }}>A</div>
-          <span style={{ fontWeight: '800', fontSize: '18px', letterSpacing: '-0.5px' }}>PdfAsaan</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{
+            width: '36px',
+            height: '36px',
+            background: devMode ? 'linear-gradient(135deg, #ef4444, #b91c1c)' : 'linear-gradient(135deg, #0891b2, #22d3ee)',
+            borderRadius: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: '900',
+            fontSize: '22px',
+            color: '#000',
+            boxShadow: devMode ? '0 0 20px #ef4444' : '0 0 20px #22d3ee',
+            transition: 'all 0.4s ease'
+          }}>
+            A
+          </div>
+          <div>
+            <span style={{ fontWeight: '900', fontSize: '21px', letterSpacing: '-0.6px' }}>PdfAsaan</span>
+            {devMode && <span style={{ fontSize: '10px', color: '#ef4444', marginLeft: '8px', verticalAlign: 'super' }}>DEVIL MODE</span>}
+          </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <a href="https://buymeacoffee.com/yourusername" target="_blank" style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', color: theme.textDim, textDecoration: 'none' }}>Support</a>
-          <div style={{ width: '1px', height: '16px', backgroundColor: theme.border }}></div>
-          <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#0891b2' }}>STABLE V2.0</span>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <a 
+            href="https://buymeacoffee.com/yourusername" 
+            target="_blank"
+            style={{ 
+              fontSize: '11px', 
+              fontWeight: '700', 
+              textTransform: 'uppercase', 
+              letterSpacing: '1.5px', 
+              color: theme.textDim,
+              textDecoration: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <Coffee size={14} /> Support
+          </a>
+          <div style={{ width: '1px', height: '18px', backgroundColor: theme.border }} />
+          <span style={{ 
+            fontSize: '10px', 
+            fontFamily: 'monospace', 
+            color: devMode ? '#ef4444' : '#22d3ee',
+            letterSpacing: '2px'
+          }}>
+            STABLE V2.1 — 2026
+          </span>
         </div>
       </nav>
 
-      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        <header style={{ marginBottom: '60px' }}>
-          <h1 style={{ fontSize: 'clamp(40px, 8vw, 72px)', fontWeight: '900', letterSpacing: '-0.04em', lineHeight: '1', marginBottom: '20px' }}>
-            Document handling, <br/>
-            <span style={{ color: theme.textDim }}>made truly effortless.</span>
+      <div style={{ maxWidth: '1180px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+        <header style={{ marginBottom: '72px', textAlign: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+            <div style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '10px', 
+              background: 'rgba(255,255,255,0.03)', 
+              padding: '6px 18px', 
+              borderRadius: '9999px',
+              border: `1px solid ${theme.border}`
+            }}>
+              <Sparkles size={16} color={theme.accent} />
+              <span style={{ fontSize: '12px', fontWeight: '600', color: theme.accent, letterSpacing: '3px' }}>
+                CLIENT-SIDE • ZERO UPLOADS
+              </span>
+            </div>
+          </div>
+
+          <h1 style={{ 
+            fontSize: 'clamp(42px, 9vw, 78px)', 
+            fontWeight: '900', 
+            letterSpacing: '-0.05em', 
+            lineHeight: '1.05',
+            marginBottom: '24px'
+          }}>
+            Document warfare,<br />
+            <span style={{ color: theme.textDim }}>made brutally simple.</span>
           </h1>
-          <p style={{ fontSize: '19px', color: theme.textDim, maxWidth: '600px', lineHeight: '1.6' }}>
-            Professional-grade PDF tools running entirely in your browser. No uploads, no servers, 100% private.
+
+          <p style={{ 
+            fontSize: '19.5px', 
+            color: theme.textDim, 
+            maxWidth: '620px', 
+            margin: '0 auto',
+            lineHeight: '1.65'
+          }}>
+            Professional PDF tools that run entirely in your browser.<br />
+            No servers. No tracking. No mercy.
           </p>
         </header>
 
+        {/* Recent Tools */}
+        {recentTools.length > 0 && (
+          <div style={{ marginBottom: '60px' }}>
+            <h3 style={{ fontSize: '15px', color: theme.textDim, marginBottom: '18px', letterSpacing: '1px' }}>
+              RECENTLY SUMMONED
+            </h3>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              {recentTools.map((toolId) => {
+                const tool = tools.find(t => t.id === toolId);
+                if (!tool) return null;
+                return (
+                  <button
+                    key={toolId}
+                    onClick={() => handleToolSelect(toolId as Tool)}
+                    style={{
+                      background: 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${theme.border}`,
+                      padding: '10px 20px',
+                      borderRadius: '9999px',
+                      fontSize: '14px',
+                      color: theme.textDim,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.borderColor = theme.accent}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = theme.border}
+                  >
+                    {tool.icon}
+                    {tool.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Tools Grid */}
         <div style={gridStyle}>
           {tools.map((tool) => (
-            <button 
-              key={tool.id} 
-              onClick={() => setActiveTool(tool.id as Tool)}
+            <button
+              key={tool.id}
+              onClick={() => handleToolSelect(tool.id as Tool)}
               style={cardStyle}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(51, 65, 85, 0.6)';
-                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+                e.currentTarget.style.borderColor = tool.color;
+                e.currentTarget.style.boxShadow = `0 20px 40px -15px ${tool.color}40`;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = theme.card;
-                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.borderColor = devMode ? '#7f1d1d' : theme.border;
+                e.currentTarget.style.boxShadow = '0 10px 30px -15px rgba(0,0,0,0.5)';
               }}
             >
-              <div style={{ width: '50px', height: '50px', borderRadius: '14px', backgroundColor: `${tool.color}15`, color: tool.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
+              <div style={{
+                width: '58px',
+                height: '58px',
+                borderRadius: '16px',
+                backgroundColor: `${tool.color}15`,
+                color: tool.color,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '28px',
+                transition: 'all 0.3s ease'
+              }}>
                 {tool.icon}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <h3 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>{tool.name}</h3>
-                <ChevronRight size={18} color={theme.textDim} />
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                <h3 style={{ 
+                  fontSize: '21px', 
+                  fontWeight: '700', 
+                  margin: 0,
+                  lineHeight: '1.2'
+                }}>
+                  {tool.name}
+                </h3>
+                <ChevronRight size={20} color={theme.textDim} />
               </div>
-              <p style={{ fontSize: '14px', color: theme.textDim, margin: 0, lineHeight: '1.5' }}>{tool.desc}</p>
+
+              <p style={{ 
+                fontSize: '14.5px', 
+                color: theme.textDim, 
+                margin: 0, 
+                lineHeight: '1.55' 
+              }}>
+                {tool.desc}
+              </p>
+
+              <div style={{
+                marginTop: 'auto',
+                paddingTop: '24px',
+                borderTop: `1px solid ${theme.border}`,
+                fontSize: '11px',
+                color: theme.accent,
+                fontWeight: '600',
+                letterSpacing: '1px',
+                opacity: 0.7
+              }}>
+                IN-BROWSER • INSTANT
+              </div>
             </button>
           ))}
         </div>
 
-        <div style={{ marginTop: '80px', padding: '30px', border: `1px solid ${theme.border}`, borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', backgroundColor: 'rgba(255,255,255,0.02)' }}>
-          <ShieldCheck size={20} color="#22d3ee" />
-          <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px', color: '#64748b' }}>
-            End-to-End Privacy: Files never leave your device
-          </span>
+        {/* Privacy Statement */}
+        <div style={{
+          marginTop: '100px',
+          padding: '32px 40px',
+          border: `1px solid ${devMode ? '#450a0a' : theme.border}`,
+          borderRadius: '28px',
+          backgroundColor: devMode ? 'rgba(30,10,10,0.4)' : 'rgba(255,255,255,0.015)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          maxWidth: '720px',
+          marginLeft: 'auto',
+          marginRight: 'auto'
+        }}>
+          <ShieldCheck size={28} color={devMode ? '#ef4444' : theme.accent} />
+          <div>
+            <span style={{ 
+              fontSize: '13px', 
+              fontWeight: '700', 
+              textTransform: 'uppercase', 
+              letterSpacing: '2.5px',
+              color: devMode ? '#fca5a5' : '#64748b'
+            }}>
+              END-TO-END PRIVACY
+            </span>
+            <p style={{ margin: '4px 0 0 0', fontSize: '15px', color: theme.textDim }}>
+              Every file stays on your device. We don’t want your data. We don’t even look at it.
+            </p>
+          </div>
         </div>
       </div>
 
-      <footer style={{ marginTop: '100px', paddingBottom: '40px', textAlign: 'center' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', marginBottom: '20px' }}>
-          <Link href="/privacy" style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', color: theme.textDim, textDecoration: 'none' }}>Privacy</Link>
-          <Link href="/terms" style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', color: theme.textDim, textDecoration: 'none' }}>Terms</Link>
-          <Link href="/about" style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', color: theme.textDim, textDecoration: 'none' }}>About</Link>
+      {/* Footer */}
+      <footer style={{
+        marginTop: '140px',
+        paddingBottom: '60px',
+        textAlign: 'center',
+        color: '#334155'
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          gap: '32px', 
+          marginBottom: '24px',
+          flexWrap: 'wrap'
+        }}>
+          <Link href="/privacy" style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1px', color: theme.textDim, textDecoration: 'none' }}>Privacy</Link>
+          <Link href="/terms" style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1px', color: theme.textDim, textDecoration: 'none' }}>Terms</Link>
+          <Link href="/about" style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1px', color: theme.textDim, textDecoration: 'none' }}>About</Link>
+          <Link href="/changelog" style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1px', color: theme.textDim, textDecoration: 'none' }}>Changelog</Link>
         </div>
-        <p style={{ fontSize: '10px', fontFamily: 'monospace', color: '#334155', letterSpacing: '4px' }}>© 2026 PDF ASAAN • OPEN SOURCE UTILITY</p>
+        <p style={{ 
+          fontSize: '10px', 
+          fontFamily: 'monospace', 
+          letterSpacing: '4px',
+          color: '#1e2937'
+        }}>
+          © 2026 PDF ASAAN • BUILT TO DESTROY ADOBE'S MONOPOLY
+        </p>
       </footer>
     </div>
   );
